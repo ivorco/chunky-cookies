@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>chunky-cookies demo</title>
+  </head>
+  <body>
+    <header>
+      <h1>chunky-cookies 🍪</h1>
+      <p>Transparent cookie chunking — live demo</p>
+    </header>
+
+    <nav class="tabs">
+      <button class="tab active" data-tab="standalone">Standalone</button>
+      <button class="tab" data-tab="zustand">Zustand</button>
+      <button class="tab" data-tab="custom">Custom Wrapper</button>
+    </nav>
+
+    <main>
+      <div id="tab-standalone" class="tab-panel active"></div>
+      <div id="tab-zustand" class="tab-panel"></div>
+      <div id="tab-custom" class="tab-panel"></div>
+    </main>
+
+    <script type="module" src="/src/main.ts"></script>
+  </body>
+</html>

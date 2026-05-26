@@ -8,23 +8,24 @@
   "types": "./dist/index.d.ts",
   "exports": {
     ".": {
-      "import": "./dist/index.js",
-      "types": "./dist/index.d.ts"
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
     },
     "./zustand": {
-      "import": "./dist/adapters/zustand.js",
-      "types": "./dist/adapters/zustand.d.ts"
+      "types": "./dist/adapters/zustand.d.ts",
+      "import": "./dist/adapters/zustand.js"
     },
     "./next": {
-      "import": "./dist/wrappers/next.js",
-      "types": "./dist/wrappers/next.d.ts"
+      "types": "./dist/wrappers/next.d.ts",
+      "import": "./dist/wrappers/next.js"
     }
   },
   "files": [
     "dist"
   ],
   "scripts": {
-    "build": "tsc",
+    "build": "tsup",
+    "prepublishOnly": "npm run build && npm test",
     "test": "vitest run",
     "test:watch": "vitest",
     "test:coverage": "vitest run --coverage",
@@ -62,6 +63,7 @@
     "@types/js-cookie": "^3.0.6",
     "@vitest/coverage-v8": "^2.0.0",
     "js-cookie": "^3.0.5",
+    "tsup": "^8.0.0",
     "typescript": "^5.4.0",
     "vitest": "^2.0.0",
     "zustand": "^5.0.0"

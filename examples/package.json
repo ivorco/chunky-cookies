@@ -1,0 +1,20 @@
+{
+  "name": "chunky-cookies-examples",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "js-cookie": "^3.0.5",
+    "zustand": "^5.0.0"
+  },
+  "devDependencies": {
+    "@types/js-cookie": "^3.0.6",
+    "typescript": "^5.4.0",
+    "vite": "^5.0.0"
+  }
+}
