@@ -1,6 +1,6 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
-import { cookieStorage } from "chunky-cookies";
+import { cookieStorage } from "chunky-cookies/zustand";
 import { CookieInspector, fmtBytes } from "./inspector";
 import { makeHugeStorePayload } from "./presets";
 
