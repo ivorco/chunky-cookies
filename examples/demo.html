@@ -1,0 +1,715 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>chunky-cookies 🍪 demo</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:         #0f0f11;
+      --surface:    #1a1a1f;
+      --surface2:   #24242c;
+      --border:     #2e2e38;
+      --accent:     #f5a623;
+      --accent-dim: #7a5213;
+      --green:      #3ecf8e;
+      --red:        #f06c6c;
+      --blue:       #6ab0f5;
+      --text:       #e8e8ee;
+      --muted:      #666680;
+      --radius:     10px;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      padding: 32px 24px;
+    }
+
+    header {
+      text-align: center;
+      margin-bottom: 40px;
+    }
+
+    header h1 {
+      font-size: 2rem;
+      font-weight: 700;
+      letter-spacing: -0.5px;
+    }
+
+    header p {
+      color: var(--muted);
+      margin-top: 6px;
+      font-size: 0.9rem;
+    }
+
+    .layout {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+      max-width: 1100px;
+      margin: 0 auto;
+    }
+
+    @media (max-width: 760px) {
+      .layout { grid-template-columns: 1fr; }
+    }
+
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 22px;
+    }
+
+    .card h2 {
+      font-size: 0.8rem;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 18px;
+    }
+
+    /* --- Controls --- */
+
+    label {
+      display: block;
+      font-size: 0.78rem;
+      color: var(--muted);
+      margin-bottom: 5px;
+    }
+
+    input[type="text"] {
+      width: 100%;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      color: var(--text);
+      font-size: 0.9rem;
+      padding: 9px 12px;
+      margin-bottom: 14px;
+      outline: none;
+      transition: border-color 0.15s;
+    }
+
+    input[type="text"]:focus { border-color: var(--accent); }
+
+    textarea {
+      width: 100%;
+      height: 140px;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      color: var(--text);
+      font-size: 0.82rem;
+      font-family: "Menlo", "Consolas", monospace;
+      padding: 10px 12px;
+      resize: vertical;
+      outline: none;
+      transition: border-color 0.15s;
+      line-height: 1.5;
+    }
+
+    textarea:focus { border-color: var(--accent); }
+
+    .size-bar {
+      margin: 10px 0 16px;
+    }
+
+    .size-label {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.75rem;
+      color: var(--muted);
+      margin-bottom: 5px;
+    }
+
+    .size-label span:last-child { color: var(--text); font-weight: 600; }
+
+    .bar-track {
+      height: 5px;
+      background: var(--border);
+      border-radius: 99px;
+      overflow: hidden;
+    }
+
+    .bar-fill {
+      height: 100%;
+      border-radius: 99px;
+      background: var(--green);
+      transition: width 0.2s, background 0.2s;
+    }
+
+    .presets {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+      margin-bottom: 16px;
+    }
+
+    .btn {
+      padding: 7px 14px;
+      border-radius: 6px;
+      border: 1px solid var(--border);
+      background: var(--surface2);
+      color: var(--text);
+      font-size: 0.8rem;
+      cursor: pointer;
+      transition: background 0.15s, border-color 0.15s;
+    }
+
+    .btn:hover { background: var(--border); }
+
+    .btn-accent {
+      background: var(--accent);
+      border-color: var(--accent);
+      color: #111;
+      font-weight: 600;
+    }
+
+    .btn-accent:hover { background: #e09518; border-color: #e09518; }
+
+    .btn-danger {
+      border-color: var(--red);
+      color: var(--red);
+    }
+
+    .btn-danger:hover { background: rgba(240,108,108,0.1); }
+
+    .actions {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    /* --- Log --- */
+
+    .log {
+      margin-top: 20px;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 14px;
+      min-height: 80px;
+      max-height: 200px;
+      overflow-y: auto;
+      font-family: "Menlo", "Consolas", monospace;
+      font-size: 0.78rem;
+      line-height: 1.7;
+    }
+
+    .log-entry { display: flex; gap: 10px; }
+    .log-entry .ts { color: var(--muted); flex-shrink: 0; }
+    .log-entry.ok .msg  { color: var(--green); }
+    .log-entry.err .msg { color: var(--red); }
+    .log-entry.info .msg { color: var(--blue); }
+
+    /* --- Inspector --- */
+
+    .inspector-meta {
+      display: flex;
+      gap: 16px;
+      margin-bottom: 14px;
+      font-size: 0.8rem;
+    }
+
+    .stat {
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 8px 14px;
+      flex: 1;
+      text-align: center;
+    }
+
+    .stat .val {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: var(--accent);
+      display: block;
+      line-height: 1.2;
+    }
+
+    .stat .lbl { color: var(--muted); font-size: 0.72rem; }
+
+    .cookie-list { display: flex; flex-direction: column; gap: 6px; }
+
+    .cookie-item {
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 10px 14px;
+      font-size: 0.8rem;
+    }
+
+    .cookie-item.is-meta  { border-color: var(--accent-dim); }
+    .cookie-item.is-chunk { border-color: #2a3a4a; }
+
+    .cookie-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .cookie-name {
+      font-family: monospace;
+      font-weight: 600;
+      color: var(--accent);
+      flex-shrink: 0;
+    }
+
+    .cookie-item.is-chunk .cookie-name { color: var(--blue); }
+
+    .cookie-badge {
+      font-size: 0.68rem;
+      padding: 2px 7px;
+      border-radius: 99px;
+      background: var(--border);
+      color: var(--muted);
+      flex-shrink: 0;
+    }
+
+    .cookie-val {
+      color: var(--muted);
+      font-family: monospace;
+      font-size: 0.72rem;
+      word-break: break-all;
+      margin-top: 5px;
+      line-height: 1.5;
+    }
+
+    .chunk-progress {
+      margin-top: 12px;
+    }
+
+    .chunk-blocks {
+      display: flex;
+      gap: 3px;
+      flex-wrap: wrap;
+      margin-top: 6px;
+    }
+
+    .chunk-block {
+      height: 18px;
+      flex: 1;
+      min-width: 20px;
+      background: var(--blue);
+      border-radius: 3px;
+      opacity: 0.7;
+      position: relative;
+      cursor: default;
+      transition: opacity 0.15s;
+    }
+
+    .chunk-block:hover { opacity: 1; }
+
+    .empty-state {
+      text-align: center;
+      padding: 30px;
+      color: var(--muted);
+      font-size: 0.85rem;
+    }
+
+    .refresh-btn {
+      float: right;
+      font-size: 0.75rem;
+      padding: 3px 10px;
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <h1>chunky-cookies 🍪</h1>
+  <p>Transparently chunk large values across multiple cookies — live demo</p>
+</header>
+
+<div class="layout">
+
+  <!-- Left: Controls -->
+  <div>
+    <div class="card">
+      <h2>Controls</h2>
+
+      <label>Cookie key</label>
+      <input type="text" id="key" value="my-store" />
+
+      <label>Value</label>
+      <textarea id="value" placeholder="Type anything, or use a preset below…"></textarea>
+
+      <div class="size-bar">
+        <div class="size-label">
+          <span>Value size</span>
+          <span id="size-text">0 bytes</span>
+        </div>
+        <div class="bar-track">
+          <div class="bar-fill" id="size-bar" style="width:0%"></div>
+        </div>
+      </div>
+
+      <div class="presets">
+        <button class="btn" onclick="loadPreset('tiny')">Tiny (200 B)</button>
+        <button class="btn" onclick="loadPreset('small')">Small (1.2 KB)</button>
+        <button class="btn" onclick="loadPreset('medium')">Medium (4 KB)</button>
+        <button class="btn" onclick="loadPreset('large')">Large (10 KB)</button>
+        <button class="btn" onclick="loadPreset('huge')">Huge (20 KB)</button>
+      </div>
+
+      <div class="actions">
+        <button class="btn btn-accent" onclick="doSet()">Set cookie</button>
+        <button class="btn" onclick="doGet()">Get &amp; verify</button>
+        <button class="btn btn-danger" onclick="doRemove()">Remove</button>
+      </div>
+
+      <div class="log" id="log">
+        <div class="log-entry info">
+          <span class="ts">--:--:--</span>
+          <span class="msg">Ready. Pick a preset and hit "Set cookie".</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Right: Inspector -->
+  <div>
+    <div class="card">
+      <h2>
+        Cookie inspector
+        <button class="btn refresh-btn" onclick="refresh()">↻ Refresh</button>
+      </h2>
+
+      <div class="inspector-meta">
+        <div class="stat">
+          <span class="val" id="stat-total">0</span>
+          <span class="lbl">cookies set</span>
+        </div>
+        <div class="stat">
+          <span class="val" id="stat-chunks">0</span>
+          <span class="lbl">chunks</span>
+        </div>
+        <div class="stat">
+          <span class="val" id="stat-bytes">0 B</span>
+          <span class="lbl">total stored</span>
+        </div>
+      </div>
+
+      <div id="cookie-list" class="cookie-list">
+        <div class="empty-state">No chunky-cookies found yet.</div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+// ---------------------------------------------------------------------------
+// Core — ported from src/core.ts (no build step needed)
+// ---------------------------------------------------------------------------
+
+const MAX_CHUNK_SIZE = Math.floor(4000 / 3);
+
+const rawCookies = {
+  get(name) {
+    const match = document.cookie
+      .split('; ')
+      .find(row => row.startsWith(name + '='));
+    return match ? decodeURIComponent(match.split('=').slice(1).join('=')) : undefined;
+  },
+  set(name, value, opts = {}) {
+    let c = `${name}=${encodeURIComponent(value)}`;
+    if (opts.expires) {
+      const d = new Date();
+      d.setDate(d.getDate() + opts.expires);
+      c += `; expires=${d.toUTCString()}`;
+    }
+    c += `; path=${opts.path ?? '/'}`;
+    document.cookie = c;
+  },
+  remove(name) {
+    document.cookie = `${name}=; expires=Thu, 01 Jan 1970 00:00:00 GMT; path=/`;
+  },
+};
+
+function setItem(name, value, opts = {}) {
+  if (value.length <= MAX_CHUNK_SIZE) {
+    rawCookies.set(name, value, opts);
+    return 1;
+  }
+  const chunks = [];
+  for (let i = 0; i < value.length; i += MAX_CHUNK_SIZE) {
+    chunks.push(value.slice(i, i + MAX_CHUNK_SIZE));
+  }
+  chunks.forEach((chunk, i) => rawCookies.set(`${name}_${i}`, chunk, opts));
+  rawCookies.set(name, JSON.stringify({ _partitioned: true, chunks: chunks.length }), opts);
+  return chunks.length;
+}
+
+function getItem(name) {
+  const raw = rawCookies.get(name);
+  if (raw === undefined) return null;
+  try {
+    const parsed = JSON.parse(raw);
+    if (parsed?._partitioned) {
+      const count = parsed.chunks;
+      if (!Number.isFinite(count) || count <= 0) return null;
+      const parts = [];
+      for (let i = 0; i < count; i++) {
+        const chunk = rawCookies.get(`${name}_${i}`);
+        if (typeof chunk !== 'string') return null;
+        parts.push(chunk);
+      }
+      return parts.join('');
+    }
+  } catch {}
+  return raw;
+}
+
+function removeItem(name) {
+  const raw = rawCookies.get(name);
+  let removed = 0;
+  if (raw !== undefined) {
+    try {
+      const parsed = JSON.parse(raw);
+      if (parsed?._partitioned) {
+        for (let i = 0; i < parsed.chunks; i++) {
+          rawCookies.remove(`${name}_${i}`);
+          removed++;
+        }
+      }
+    } catch {}
+  }
+  rawCookies.remove(name);
+  return removed + 1;
+}
+
+// ---------------------------------------------------------------------------
+// Presets
+// ---------------------------------------------------------------------------
+
+function makeJSON(approxBytes) {
+  const items = [];
+  while (JSON.stringify({ items }).length < approxBytes) {
+    items.push({ id: items.length, label: `item-${items.length}`, active: items.length % 2 === 0 });
+  }
+  return JSON.stringify({ generated: true, count: items.length, items }, null, 2);
+}
+
+const PRESETS = {
+  tiny:   () => makeJSON(200),
+  small:  () => makeJSON(1200),
+  medium: () => makeJSON(4000),
+  large:  () => makeJSON(10000),
+  huge:   () => makeJSON(20000),
+};
+
+function loadPreset(name) {
+  document.getElementById('value').value = PRESETS[name]();
+  updateSizeBar();
+}
+
+// ---------------------------------------------------------------------------
+// Size bar
+// ---------------------------------------------------------------------------
+
+const LIMIT = MAX_CHUNK_SIZE * 10; // visual max = 10 chunks
+
+function fmtBytes(n) {
+  if (n < 1024) return `${n} B`;
+  return `${(n / 1024).toFixed(1)} KB`;
+}
+
+function updateSizeBar() {
+  const val = document.getElementById('value').value;
+  const size = new TextEncoder().encode(val).length;
+  const pct = Math.min((size / LIMIT) * 100, 100);
+  const bar = document.getElementById('size-bar');
+  bar.style.width = pct + '%';
+  bar.style.background = size <= MAX_CHUNK_SIZE ? 'var(--green)' : size <= MAX_CHUNK_SIZE * 4 ? 'var(--accent)' : 'var(--red)';
+  document.getElementById('size-text').textContent = fmtBytes(size);
+}
+
+document.getElementById('value').addEventListener('input', updateSizeBar);
+
+// ---------------------------------------------------------------------------
+// Log
+// ---------------------------------------------------------------------------
+
+function log(msg, type = 'info') {
+  const el = document.getElementById('log');
+  const ts = new Date().toTimeString().slice(0, 8);
+  const entry = document.createElement('div');
+  entry.className = `log-entry ${type}`;
+  entry.innerHTML = `<span class="ts">${ts}</span><span class="msg">${msg}</span>`;
+  el.appendChild(entry);
+  el.scrollTop = el.scrollHeight;
+}
+
+// ---------------------------------------------------------------------------
+// Actions
+// ---------------------------------------------------------------------------
+
+function doSet() {
+  const name = document.getElementById('key').value.trim();
+  const value = document.getElementById('value').value;
+  if (!name) { log('Key cannot be empty', 'err'); return; }
+  if (!value) { log('Value cannot be empty', 'err'); return; }
+
+  const chunks = setItem(name, value, { expires: 1 });
+  const size = fmtBytes(new TextEncoder().encode(value).length);
+
+  if (chunks === 1) {
+    log(`✓ Stored "${name}" as a single cookie (${size})`, 'ok');
+  } else {
+    log(`✓ Stored "${name}" in ${chunks} chunks across ${chunks + 1} cookies (${size} total)`, 'ok');
+  }
+  refresh();
+}
+
+function doGet() {
+  const name = document.getElementById('key').value.trim();
+  const result = getItem(name);
+  if (result === null) {
+    log(`✗ "${name}" not found`, 'err');
+    return;
+  }
+
+  const stored = document.getElementById('value').value;
+  if (result === stored) {
+    log(`✓ Retrieved "${name}" — matches original exactly (${fmtBytes(result.length)})`, 'ok');
+  } else {
+    log(`⚠ Retrieved "${name}" but content differs from current textarea`, 'info');
+  }
+}
+
+function doRemove() {
+  const name = document.getElementById('key').value.trim();
+  const count = removeItem(name);
+  log(`✓ Removed "${name}" (cleared ${count} cookie${count !== 1 ? 's' : ''})`, 'ok');
+  refresh();
+}
+
+// ---------------------------------------------------------------------------
+// Inspector
+// ---------------------------------------------------------------------------
+
+function getAllCookies() {
+  return Object.fromEntries(
+    document.cookie.split('; ')
+      .filter(Boolean)
+      .map(c => {
+        const idx = c.indexOf('=');
+        return [c.slice(0, idx), decodeURIComponent(c.slice(idx + 1))];
+      })
+  );
+}
+
+function refresh() {
+  const all = getAllCookies();
+  const key = document.getElementById('key').value.trim();
+
+  // Find chunky-cookies entries for the current key
+  const metaKey = key;
+  const metaRaw = all[metaKey];
+
+  const listEl = document.getElementById('cookie-list');
+  listEl.innerHTML = '';
+
+  // Find all cookies that belong to chunky-cookies (meta + chunks for current key)
+  const relatedKeys = Object.keys(all).filter(k => k === key || k.startsWith(key + '_'));
+
+  if (relatedKeys.length === 0) {
+    listEl.innerHTML = '<div class="empty-state">No cookies for this key.<br>Try setting a value first.</div>';
+    document.getElementById('stat-total').textContent = '0';
+    document.getElementById('stat-chunks').textContent = '0';
+    document.getElementById('stat-bytes').textContent = '0 B';
+    return;
+  }
+
+  let chunkCount = 0;
+  let totalBytes = 0;
+  let isMeta = false;
+
+  // Meta / root cookie
+  if (metaRaw !== undefined) {
+    let isPartitioned = false;
+    let meta = null;
+    try {
+      meta = JSON.parse(metaRaw);
+      isPartitioned = meta?._partitioned === true;
+    } catch {}
+
+    isMeta = isPartitioned;
+    const item = document.createElement('div');
+    item.className = `cookie-item ${isPartitioned ? 'is-meta' : ''}`;
+    totalBytes += new TextEncoder().encode(metaRaw).length;
+
+    item.innerHTML = `
+      <div class="cookie-row">
+        <span class="cookie-name">${metaKey}</span>
+        <span class="cookie-badge">${isPartitioned ? `meta · ${meta.chunks} chunks` : 'plain'}</span>
+      </div>
+      <div class="cookie-val">${truncate(metaRaw, 120)}</div>
+      ${isPartitioned ? renderChunkBlocks(meta.chunks) : ''}
+    `;
+    listEl.appendChild(item);
+
+    if (isPartitioned) chunkCount = meta.chunks;
+  }
+
+  // Chunk cookies
+  const chunkKeys = Object.keys(all)
+    .filter(k => k.startsWith(key + '_'))
+    .sort((a, b) => {
+      const ai = parseInt(a.split('_').pop());
+      const bi = parseInt(b.split('_').pop());
+      return ai - bi;
+    });
+
+  chunkKeys.forEach(ck => {
+    const val = all[ck];
+    totalBytes += new TextEncoder().encode(val).length;
+    const idx = parseInt(ck.split('_').pop());
+    const item = document.createElement('div');
+    item.className = 'cookie-item is-chunk';
+    item.innerHTML = `
+      <div class="cookie-row">
+        <span class="cookie-name">${ck}</span>
+        <span class="cookie-badge">chunk ${idx} · ${fmtBytes(val.length)}</span>
+      </div>
+      <div class="cookie-val">${truncate(val, 80)}</div>
+    `;
+    listEl.appendChild(item);
+  });
+
+  document.getElementById('stat-total').textContent = relatedKeys.length;
+  document.getElementById('stat-chunks').textContent = chunkCount || (relatedKeys.length > 1 ? relatedKeys.length - 1 : 0);
+  document.getElementById('stat-bytes').textContent = fmtBytes(totalBytes);
+}
+
+function renderChunkBlocks(count) {
+  const blocks = Array.from({ length: count }, (_, i) =>
+    `<div class="chunk-block" title="Chunk ${i}"></div>`
+  ).join('');
+  return `
+    <div class="chunk-progress">
+      <div class="size-label"><span style="color:var(--muted);font-size:0.72rem">${count} chunk cookie${count !== 1 ? 's' : ''}</span></div>
+      <div class="chunk-blocks">${blocks}</div>
+    </div>
+  `;
+}
+
+function truncate(str, max) {
+  return str.length > max ? str.slice(0, max) + '…' : str;
+}
+
+// Init
+refresh();
+</script>
+</body>
+</html>
