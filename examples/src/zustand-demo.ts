@@ -1,4 +1,4 @@
-import { create } from "zustand";
+import { createStore } from "zustand/vanilla";
 import { persist } from "zustand/middleware";
 import { cookieStorage } from "chunky-cookies/zustand";
 import { CookieInspector, fmtBytes } from "./inspector";
@@ -17,7 +17,7 @@ interface DemoStore {
 
 const STORE_KEY = "zustand-demo";
 
-const useStore = create<DemoStore>()(
+const store = createStore<DemoStore>()(
   persist(
     (set) => ({
       counter: 0,
@@ -96,7 +96,7 @@ export function initZustand(container: HTMLElement) {
   );
 
   function renderState() {
-    const { counter, toggled, message } = useStore.getState();
+    const { counter, toggled, message } = store.getState();
     const isLong = message.length > 60;
     stateEl.innerHTML = `
       <div><span class="store-key">counter</span>: <span class="store-val">${counter}</span></div>
@@ -110,7 +110,7 @@ export function initZustand(container: HTMLElement) {
     msgInput.value = message.length <= 60 ? message : "";
   }
 
-  useStore.subscribe(() => {
+  store.subscribe(() => {
     renderState();
     inspector.refresh();
   });
@@ -119,24 +119,24 @@ export function initZustand(container: HTMLElement) {
   inspector.refresh();
 
   container.querySelector("#z-inc")!.addEventListener("click", () =>
-    useStore.getState().increment()
+    store.getState().increment()
   );
   container.querySelector("#z-dec")!.addEventListener("click", () =>
-    useStore.getState().decrement()
+    store.getState().decrement()
   );
   container.querySelector("#z-toggle")!.addEventListener("click", () =>
-    useStore.getState().toggle()
+    store.getState().toggle()
   );
 
   container.querySelector("#z-set-msg")!.addEventListener("click", () => {
-    useStore.getState().setMessage(msgInput.value);
+    store.getState().setMessage(msgInput.value);
   });
 
   container.querySelector("#z-huge")!.addEventListener("click", () => {
-    useStore.getState().setMessage(makeHugeStorePayload());
+    store.getState().setMessage(makeHugeStorePayload());
   });
 
   container.querySelector("#z-reset")!.addEventListener("click", () => {
-    useStore.getState().reset();
+    store.getState().reset();
   });
 }
